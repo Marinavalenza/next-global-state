@@ -3,14 +3,24 @@ export const DefaultReducer = (state, action) => {
     case "SET_ADD":
       return {
         ...state,
-        isAdded: true,
+        todos: [...state.todos, action.payload],
       };
-    case "SET-REMOVE":
+    case "SET_REMOVE":
       return {
         ...state,
         isRemoved: false,
       };
-  }
+    case "SET_TODO_COMPLETED":
+      return {
+        ...state,
+        todos: state?.todos?.map((todo) =>
+          todo.id === action.payload
+            ? { ...todo, completed: !todo.completed }
+            : todo
+        ),
+      };
 
-  console.log(state);
+    default:
+      return state;
+  }
 };

@@ -1,12 +1,15 @@
 import Head from "next/head";
+import { useReducer } from "react";
 import { DefaultContext } from "@/state";
 import { initialState } from "@/state";
 import { DefaultReducer } from "@/state/reducers";
 import styles from "@/styles/Home.module.css";
 import Navbar from "@/components/Navbar/Navbar";
+
 import Todos from "@/components/Todos";
 
 export default function Home() {
+  const [state, dispatch] = useReducer(DefaultReducer, initialState);
   return (
     <>
       <Head>
@@ -17,7 +20,7 @@ export default function Home() {
       </Head>
       <main>
         <Navbar />
-        <DefaultContext.Provider value={{ initialState }}>
+        <DefaultContext.Provider value={{ state, dispatch }}>
           <Todos />
         </DefaultContext.Provider>
       </main>
