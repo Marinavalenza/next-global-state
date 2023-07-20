@@ -1,27 +1,51 @@
 import { useContext } from "react";
 import { DefaultContext } from "@/state";
+import { doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { db } from "@/plugins/firebase";
 import styles from "./Todo.module.scss";
 
-const Todo = ({ data }) => {
-  const { state, dispatch } = useContext(DefaultContext);
-  const onHandleClick = () => {
-    confirm("Are you sure?") && dispatch({ type: "SET_TODO_COMPLETED" });
+const TodoItem = ({ data }) => {
+  const { dispatch } = useContext(DefaultContext);
+
+  const onHandleClick = async () => {
+    if (confirm("Are YOu sure?")) {
+      dispatch({ type: "SET_TODO_COMPLETED", payload: data.id });
+
+      await updateDoc(doc(db, "todos-list", data.id), {
+        completed: !data.completed,
+      });
+    }
   };
 
-  // const onHandleAdd = () =>
-  //   dispatch({ type: "SET_TODO_COMPLETED", payload: data.id });
+  const onHandleDelete = async (e) => {
+    if (e.pageX >= 0) {
+      dispatch({ type: "REMOVE_TODO", payload: data.id });
+
+      try {
+        await deleteDoc(doc(db, "todos-list", data.id));
+      } catch (e) {}
+    }
+  };
+
+  const onHandleDrag = (e) => {
+    e.target.style.display = "none";
+  };
 
   return (
     <div
-      className={`${styles.todo} ${data.completed && styles.completed}`}
+      className={`${styles.TodoItem} ${data.completed && styles.completed}`}
       onClick={onHandleClick}
+      onDragEnd={onHandleDelete}
+      onDrag={onHandleDrag}
+      draggable="true"
     >
-      <div className="padre">
-        <h3>{`Name : ${data.todo}`}</h3>
-        <p> {data.completed ? "Good Job!" : "New challenge?"} </p>
+      <div className={styles.content}>
+        <p>{data.id}</p>
+        <h3>{data.content}</h3>
       </div>
+      <p>{data.completed ? "Good Job" : "New Challenge?"}</p>
     </div>
   );
 };
 
-export default Todo;
+export default TodoItem;

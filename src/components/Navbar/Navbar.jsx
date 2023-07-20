@@ -1,12 +1,17 @@
+import { useContext } from "react";
+import { DefaultContext } from "@/state";
 import styles from "./Navbar.module.scss";
 
 const Navbar = () => {
+  const { state, dispatch } = useContext(DefaultContext);
+
+  const onHandleLogout = () => dispatch({ type: "SET_LOGOUT" });
+
   return (
-    <ul className={styles.Navbar}>
-      <li className="Home">Home</li>
-      <li className="Contacts">Contacts</li>
-      <li className="Profile">Profile</li>
-    </ul>
+    <div className={styles.Navbar}>
+      <p>{state.username}</p>
+      {state.username && <p onClick={onHandleLogout}>EXIT</p>}
+    </div>
   );
 };
 

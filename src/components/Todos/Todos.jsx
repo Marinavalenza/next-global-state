@@ -1,31 +1,40 @@
-import { DefaultContext } from "@/state";
 import { useContext, useState } from "react";
-import Todo from "../Todo/Todo";
+import { DefaultContext } from "@/state";
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "@/plugins/firebase";
+
+import Todo from "../Todo";
+import styles from "./Todos.module.scss";
 
 const Todos = () => {
   const { state, dispatch } = useContext(DefaultContext);
   const [input, setInput] = useState("");
 
   const onHandleInput = (e) => setInput(e.target.value);
-  const onSetNewTodo = (e) => {
+  const onSetNewTodo = async (e) => {
     e.preventDefault();
 
-    dispatch({
-      type: "SET_ADD",
-      payload: {
-        id: Math.floor(Math.random() * 1000000),
-      },
+    const payload = {
+      id: Math.floor(Math.random() * 1000000),
       content: input,
       completed: false,
+    };
+
+    dispatch({
+      type: "ADD_NEW_TODO",
+      payload,
     });
+
+    await addDoc(collection(db, "todos"), payload);
+
     setInput("");
   };
-  return (
-    <div className="Todos">
-      <div className="TitleInput">
-        <h1>All Todos</h1>
 
-        <form className={input}>
+  return (
+    <div className={styles.TodoList}>
+      <div className={styles.heading}>
+        <h1>All Todos</h1>
+        <form className={styles.input} onSubmit={onSetNewTodo}>
           <input
             type="text"
             name="content"
@@ -33,14 +42,11 @@ const Todos = () => {
             onChange={onHandleInput}
             placeholder="Add new..."
           />
-          <input className="AddBtn" type="submit" value="+" />
+          <input className={styles.addBtn} type="submit" value="+" />
         </form>
       </div>
-
-      {state?.map((todo) => (
-        <>
-          <Todo data={todo} key={todo.id} />
-        </>
+      {state?.todos?.map((todo, i) => (
+        <Todo data={todo} key={todo.id} />
       ))}
     </div>
   );
